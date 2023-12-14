@@ -1,6 +1,10 @@
 #include <string>
 #include <unordered_map>
 
+#include "library/server/ServerBase.h"
+
+#ifdef __linux__
+
 #include <unistd.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -9,8 +13,10 @@
 
 #include <thread>
 
+#define UNIX_BUFFER_SIZE 1024
 
-class Server {
+
+class LinuxServer : public ServerBase {
 private:
     int socketfd;
     struct sockaddr_in addr;
@@ -23,8 +29,8 @@ private:
         }
 
 
-        char buffer[64];
-        for (int i = 0; i < 64; ++i) {
+        char buffer[UNIX_BUFFER_SIZE];
+        for (int i = 0; i < UNIX_BUFFER_SIZE; ++i) {
             buffer[i] = '\0';
         }
 
@@ -52,7 +58,7 @@ private:
         close(client_fd);
     }
 public:
-    Server(const char* ip, int port) {
+    LinuxServer(const char* ip, int port) {
         this->socketfd = socket(AF_INET, SOCK_STREAM, 0);
 
         this->addr.sin_family = AF_INET;
@@ -68,10 +74,6 @@ public:
         }
     }
 
-    void addRoute(std::string name, std::function<std::string(void)> func) {
-        routes.insert(std::make_pair(name, func));
-    }
-
     void startListen() {
         listen(this->socketfd, 5);
 
@@ -83,7 +85,9 @@ public:
         }
     }
     
-    ~Server() {
+    ~LinuxServer() {
         close(this->socketfd);
     }
 };
+
+#endif

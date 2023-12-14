@@ -1,2 +1,3 @@
-.vscode
+ServerClientCpp/.vscode
 .idea
+cmake-build-debug/
